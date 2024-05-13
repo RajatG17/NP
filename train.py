@@ -20,7 +20,7 @@ def train(train_loader, val_loader, generator, discriminator, loss_fn, optimizer
             depth_images = depth_images.to(device)
 
             optimizer_d.zero_grad()
-            noise = torch.randn(rgb_images.size(0), 100, 1, 1).to(device)
+            noise = torch.randn(rgb_images.size(0), generator.noise_dim, 1, 1).to(device)
             generated_images = generator(rgb_images, depth_images, noise).to(device)
             real_output = discriminator(rgb_images, depth_images, rgb_images).to(device)
             fake_output = discriminator(rgb_images, depth_images, generated_images.detach()).to(device)
@@ -30,9 +30,9 @@ def train(train_loader, val_loader, generator, discriminator, loss_fn, optimizer
             train_loss_d += discriminator_loss.item()
 
             optimizer_g.zero_grad()
-            noise = torch.randn(rgb_images.size(0), 100, 1, 1).to(device)
-            generated_images = generator(rgb_images, depth_images, noise).to(device)
-            fake_output = discriminator(rgb_images, depth_images, generated_images.detach()).to(device)
+            noise = torch.randn(rgb_images.size(0), generator.noise_dim, 1, 1).to(device)
+            generated_images = generator(rgb_images, depth_images, noise)
+            fake_output = discriminator(rgb_images, depth_images, generated_images)
             generator_loss = loss_fn(fake_output, True)
             generator_loss.backward()
             optimizer_g.step()
@@ -48,7 +48,7 @@ def train(train_loader, val_loader, generator, discriminator, loss_fn, optimizer
                 rgb_images = rgb_images.to(device)
                 depth_images = depth_images.to(device)
 
-                noise = torch.randn(rgb_images.size(0), 100, 1, 1).to(device)
+                noise = torch.randn(rgb_images.size(0), generator.noise_dim, 1, 1).to(device)
                 generated_images = generator(rgb_images, depth_images, noise).to(device)
                 real_output = discriminator(rgb_images, depth_images, rgb_images).to(device)
                 fake_output = discriminator(rgb_images, depth_images, generated_images).to(device)
@@ -58,7 +58,6 @@ def train(train_loader, val_loader, generator, discriminator, loss_fn, optimizer
                 fake_output = discriminator(rgb_images, depth_images, generated_images)
                 generator_loss = loss_fn(fake_output, True)
                 val_loss_g += generator_loss.item()
-
 
         # Compute average losses
         train_loss_g /= len(train_loader)
@@ -72,7 +71,6 @@ def train(train_loader, val_loader, generator, discriminator, loss_fn, optimizer
               f"Train - Generator Loss: {train_loss_g:.4f}, Discriminator Loss: {train_loss_d:.4f} "
               f"Validation - Generator Loss: {val_loss_g:.4f}, Discriminator Loss: {val_loss_d:.4f}")
 
-
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--root_dir', type=str, required=True, help='Path to the dataset directory')
@@ -81,6 +79,7 @@ def parse_args():
     parser.add_argument('--learning_rate', type=float, default=0.0002, help='Learning rate for optimizers')
     parser.add_argument('--device', type=str, default='cuda', choices=['cpu', 'cuda'], help='Device to use for training')
     parser.add_argument('--attention', type=bool, default=True, help='Use attention layers in the GAN')
+    parser.add_argument('--pretrained_backbone', type=str, default=None, help='Path to the pre-trained backbone model')
     return parser.parse_args()
 
 if __name__ == '__main__':
@@ -90,11 +89,11 @@ if __name__ == '__main__':
     train_loader, val_loader, _ = get_data_loaders(args.root_dir, args.batch_size)
 
     # Initialize models
-    generator = Generator(noise_dim=100, attention=args.attention).to(device)
-    discriminator = Discriminator(attention=args.attention).to(device)
+    generator = Generator(noise_dim=100, attention=args.attention, pretrained_backbone=args.pretrained_backbone).to(device)
+    discriminator = Discriminator(attention=args.attention, pretrained_backbone=args.pretrained_backbone).to(device)
 
     loss_fn = GANLoss()
     optimizer_g = torch.optim.Adam(generator.parameters(), lr=args.learning_rate, betas=(0.5, 0.999))
-    optimizer_d = torch.optim.Adam(generator.parameters(), lr=args.learning_rate, betas=(0.5, 0.999))
+    optimizer_d = torch.optim.Adam(discriminator.parameters(), lr=args.learning_rate, betas=(0.5, 0.999))
 
     train(train_loader, val_loader, generator, discriminator, loss_fn, optimizer_g, optimizer_d, device, args.num_epochs)
