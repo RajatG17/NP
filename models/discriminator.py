@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 class Discriminator(nn.Module):
-    def __init__(self, input_channels=3):
+    def __init__(self, input_channels=4):
         super(Discriminator, self).__init__()
 
         # Convolutional layers
@@ -15,14 +15,14 @@ class Discriminator(nn.Module):
             nn.Conv2d(128, 256, kernel_size=4, stride=2, padding=1),
             nn.BatchNorm2d(256),
             nn.LeakyReLU(0.2, inplace=True),
-            nn.Conv2d(256, 512, kernel_size=4, stride=2, padding=1),
-            nn.BatchNorm2d(512),
+            nn.Conv2d(256, 256, kernel_size=4, stride=2, padding=1),
+            nn.BatchNorm2d(256),
             nn.LeakyReLU(0.2, inplace=True),
         )
 
         # Fully connected layers
         self.fc = nn.Sequential(
-            nn.Linear(512 * 4 * 4, 1024),
+            nn.Linear(256 * 4 * 4, 1024),
             nn.LeakyReLU(0.2, inplace=True),
             nn.Linear(1024, 1),
             nn.Sigmoid(),
@@ -33,7 +33,7 @@ class Discriminator(nn.Module):
         x = self.conv(input_tensor)
 
         # Flatten the tensor
-        x = x.view(-1, 512 * 4 * 4)
+        x = x.view(-1, 256 * 4 * 4)
 
         # Pass through the fully connected layers
         output = self.fc(x)

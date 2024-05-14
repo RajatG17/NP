@@ -19,7 +19,7 @@ class RGBDDataset(Dataset):
         depth_path = self.depth_images[idx]
 
         rgb_image = Image.open(rgb_path).convert('RGB')
-        depth_image = Image.open(depth_path)
+        depth_image = Image.open(depth_path).convert('L')
 
         if self.transform:
             rgb_image = self.transform(rgb_image)
@@ -29,9 +29,9 @@ class RGBDDataset(Dataset):
 
 def get_data_loaders(data_dir, batch_size, num_workers=4):
     transform = transforms.Compose([
-        transforms.Resize((256, 256)),
+        transforms.Resize((128, 128)),
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])  # Adjust these values as per your data
+        # transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])  # Adjust these values as per your data
     ])
 
     dataset = RGBDDataset(data_dir, transform=transform)
