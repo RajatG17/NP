@@ -105,8 +105,8 @@ def generate_frames(generator, rgb_depth_pair,  initial_orientation, num_frames,
             generated_scene = generator(rgb_image, depth_image).cpu().numpy()
 
             frame_image = np.uint8(generated_scene[0].transpose(1, 2, 0) * 255)
-            # output_path = os.path.join(save_dir, f"frame_{frame_index}.png")
-            # cv2.imwrite(output_path, frame_image)
+            output_path = os.path.join(save_dir, f"frame_{frame_index}.png")
+            cv2.imwrite(output_path, frame_image)
             frames.append(frame_image)
 
             # Update the camera orientation by panning the yaw angle

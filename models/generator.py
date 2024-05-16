@@ -10,10 +10,7 @@ class Generator(nn.Module):
         input_channels = rgb_channels + depth_channels
 
         self.encoder = nn.Sequential(
-            nn.Conv2d(input_channels, 32, kernel_size=4, stride=2, padding=1),
-            nn.LeakyReLU(0.2, inplace=True),
-            SelfAttention(32) if attention else nn.Identity(),
-            nn.Conv2d(32, 64, kernel_size=4, stride=2, padding=1),
+            nn.Conv2d(input_channels, 64, kernel_size=4, stride=2, padding=1),
             nn.LeakyReLU(0.2, inplace=True),
             SelfAttention(64) if attention else nn.Identity(),
             nn.Conv2d(64, 128, kernel_size=4, stride=2, padding=1),
@@ -36,20 +33,13 @@ class Generator(nn.Module):
             nn.ConvTranspose2d(256, 256, kernel_size=4, stride=2, padding=1),
             nn.BatchNorm2d(256),
             nn.ReLU(inplace=True),
-            SelfAttention(256) if attention else nn.Identity(),
             nn.ConvTranspose2d(256, 128, kernel_size=4, stride=2, padding=1),
             nn.BatchNorm2d(128),
             nn.ReLU(inplace=True),
-            SelfAttention(128) if attention else nn.Identity(),
             nn.ConvTranspose2d(128, 64, kernel_size=4, stride=2, padding=1),
             nn.BatchNorm2d(64),
             nn.ReLU(inplace=True),
-            SelfAttention(64) if attention else nn.Identity(),
-            nn.ConvTranspose2d(64, 32, kernel_size=4, stride=2, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU(inplace=True),
-            SelfAttention(32) if attention else nn.Identity(),
-            nn.ConvTranspose2d(32, output_channels, kernel_size=4, stride=2, padding=1),
+            nn.ConvTranspose2d(64, output_channels, kernel_size=4, stride=2, padding=1),
             nn.Tanh(),
         )
 

@@ -34,7 +34,7 @@ def train(args):
 
     # Initialize models
     generator = Generator(attention=args.attention).to(device)
-    discriminator = Discriminator(attention=args.attention).to(device)
+    discriminator = Discriminator().to(device)
 
     # Initialize loss functions and optimizers
     generator_loss = GeneratorLoss()
