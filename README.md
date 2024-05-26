@@ -1,9 +1,3 @@
-Group Member Contributions:
-
-1. Rajat: Implemented the generator, discriminator, self-attention, and training scripts. Also trained and debugged the models. Refactored code from DepthGan (https://github.com/VivianSZF/depthgan) to get baseline videos for reference.
-2. Meghana: Researched on related works on GANs, preprocessed the lsun dataset by passing through the LeRes (https://github.com/aim-uofa/AdelaiDepth) to get depth priors and developed data_utils code.
-3. Priyanka: Developed the evaluation metrics and fid_score code. Also researched state-of-the art diffusion models for comparison and evaluation. Also developed visualize code.
-
 Setting up the environment: All of the required libraries can be installed by running the following commands:
 
 ```commandline
